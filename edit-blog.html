@@ -54,7 +54,8 @@
 
         // Fetch and populate the blog data in the form
         if (blogId) {
-            fetch(`http://localhost:8080/post/id/${blogId}`, {
+            // fetch(`http://localhost:8080/post/id/${blogId}`, {
+                fetch('https://storysyncbackened-production.up.railway.app/post/id/${blogId}',{
                 method: 'GET',
                 headers: {
                     'Authorization': 'Bearer ' + jwtToken
@@ -124,7 +125,8 @@
         });
 
         function deleteImage(imageUrl, imageContainer) {
-            fetch('http://localhost:8080/post/delete-image', {
+            // fetch('http://localhost:8080/post/delete-image', {
+                fetch('https://storysyncbackened-production.up.railway.app/post/delete-image',{
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

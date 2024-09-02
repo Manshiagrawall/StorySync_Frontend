@@ -74,8 +74,8 @@
             const jwtToken = localStorage.getItem('jwt');
 
             // Fetch blogs created by the logged-in user
-            fetch(`http://localhost:8080/post/myblogs`, {
-            // fetch('https://storysyncbackened-production.up.railway.app/post/myblogs', {
+            // fetch(`http://localhost:8080/post/myblogs`, {
+            fetch('https://storysyncbackened-production.up.railway.app/post/myblogs', {
                 headers: {
                     'Authorization': 'Bearer ' + jwtToken
                 }

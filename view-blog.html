@@ -94,8 +94,8 @@
     }
 
     // Fetch the public blog post
-            fetch(`http://localhost:8080/post/id/${blogId}`)
-            // fetch(`https://storysyncbackened-production.up.railway.app/post/id/${blogId}`)
+            // fetch(`http://localhost:8080/post/id/${blogId}`)
+            fetch(`https://storysyncbackened-production.up.railway.app/post/id/${blogId}`)
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Blog not found');
