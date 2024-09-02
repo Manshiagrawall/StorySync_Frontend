@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Blog</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="./css/edit-blog.css">
+</head>
+
+<body>
+    <div class="navbar">
+        <div class="navbar-title"><span id="logospan">Story</span>Sync</div>
+        <div class="nav-links" id="navLinks">
+            <a href="index.html">Home</a>
+            <a href="my-blogs.html">My Blog</a>
+            <a href="#" id="logoutBtn">Logout</a>
+        </div>
+    </div>
+    <div class="card">
+        <h2 class="card-title">Edit Blog</h2>
+        <form id="editBlogForm" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="title">Blog Title</label>
+                <input type="text" id="title" name="title" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="content">Content</label>
+                <textarea id="content" name="content" class="form-control" rows="5" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="fileInput">Upload Images</label>
+                <input type="file" id="fileInput" name="files" class="form-control-file" multiple>
+            </div>
+            <div id="imagePreviewContainer" class="image-preview"></div>
+            <button type="submit" class="btn btn-primary">Update Blog</button>
+        </form>
+        <div id="message" class="alert"></div>
+    </div>
+
+    <!-- Dialog Box -->
+    <div class="overlay"></div>
+    <div class="dialog-box">
+        <p><span class="checkmark">&#10003;</span> Edited Successfully!</p>
+        <button onclick="redirectToViewBlog()">OK</button>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const blogId = urlParams.get('id');
+        const jwtToken = localStorage.getItem('jwt');
+
+        // Fetch and populate the blog data in the form
+        if (blogId) {
+            fetch(`http://localhost:8080/post/id/${blogId}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer ' + jwtToken
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('title').value = data.title;
+                    document.getElementById('content').value = data.content;
+                    const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+                    imagePreviewContainer.innerHTML = '';
+                    if (data.imageUrls) {
+                        data.imageUrls.forEach(url => {
+                            const imageContainer = document.createElement('div');
+                            imageContainer.className = 'image-container';
+
+                            const img = document.createElement('img');
+                            img.src = url;
+                            imageContainer.appendChild(img);
+
+                            const deleteButton = document.createElement('button');
+                            deleteButton.textContent = 'Delete Image';
+                            deleteButton.className = 'btn btn-danger btn-sm';
+                            deleteButton.onclick = function (event) {
+                                event.preventDefault();
+                                deleteImage(url, imageContainer);
+                            };
+                            imageContainer.appendChild(deleteButton);
+
+                            imagePreviewContainer.appendChild(imageContainer);
+                        });
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('message').innerText = 'Error fetching blog: ' + error.message;
+                    document.getElementById('message').className = 'alert alert-danger';
+                });
+        } else {
+            document.getElementById('message').innerText = 'Invalid blog ID.';
+            document.getElementById('message').className = 'alert alert-danger';
+        }
+
+        // Handle form submission
+        document.getElementById('editBlogForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            fetch(`http://localhost:8080/post/id/${blogId}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': 'Bearer ' + jwtToken
+                },
+                body: formData
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => { throw new Error(text); });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    showSuccessDialog(); // Show the dialog box on success
+                })
+                .catch(error => {
+                    document.getElementById('message').innerText = 'Error: ' + error.message;
+                    document.getElementById('message').className = 'alert alert-danger';
+                });
+        });
+
+        function deleteImage(imageUrl, imageContainer) {
+            fetch('http://localhost:8080/post/delete-image', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + jwtToken
+                },
+                body: JSON.stringify({ imageUrl })
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to delete image');
+                    }
+                    imageContainer.remove(); // Remove the image container on successful deletion
+                })
+                .catch(error => {
+                    console.error('Error deleting image:', error);
+                    alert('Failed to delete image');
+                });
+        }
+
+        // Show the dialog box
+        function showSuccessDialog() {
+            document.querySelector('.overlay').style.display = 'block';
+            document.querySelector('.dialog-box').style.display = 'block';
+        }
+
+        // Redirect to the view blog page
+        function redirectToViewBlog() {
+            window.location.href = `view-blog.html?id=${encodeURIComponent(blogId)}`;
+        }
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>
