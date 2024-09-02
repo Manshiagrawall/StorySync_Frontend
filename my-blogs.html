@@ -118,8 +118,8 @@
 
                                 // Handle the confirmation action
                                 document.getElementById('confirmDelete').onclick = function () {
-                                    fetch(`http://localhost:8080/post/myblogs`, {
-                                    // fetch(`https://storysyncbackened-production.up.railway.app/post/id/${blog.id}`, {
+                                    // fetch(`http://localhost:8080/post/myblogs`, {
+                                    fetch(`https://storysyncbackened-production.up.railway.app/post/id/${blog.id}`, {
                                         method: 'DELETE',
                                         headers: {
                                             'Authorization': 'Bearer ' + jwtToken,
